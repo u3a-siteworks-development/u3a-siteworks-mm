@@ -1,6 +1,6 @@
 === u3a-custom-post-types ===
 Requires at least: 5.9
-Tested up to: 6.3
+Tested up to: 6.4
 Stable tag: 5.9
 Requires PHP: 7.3
 License: GPLv2 or later
@@ -20,6 +20,8 @@ For more information please refer to the [SiteWorks website](https://siteworks.u
 Please refer to the documentation on the [SiteWorks website](https://siteworks.u3a.org.uk/u3a-siteworks-training/)
 
 == Changelog ==
+= 0.1.99 =
+* Return HTTP status code 503 Service Unavailable when Maintenance Mode is enabled instead of 500
 = 0.1.98 =
 * Release candidate 1
 * Update plugin update checker library to v5p2
