@@ -2,7 +2,7 @@
 /*
 Plugin Name: u3a SiteWorks Maintenance Mode
 Description: Displays a maintenance page for site visitors when activated.
-Version: 0.1.98
+Version: 0.1.99
 Author: u3a SiteWorks team
 Author URI: https://siteworks.u3a.org.uk/
 Plugin URI: https://siteworks.u3a.org.uk/
@@ -29,6 +29,7 @@ $default_u3a_mm_msg = 'This website is not currently open for public access';
 
 // Show "Maintenance Mode" page unless user is logged in as Author, Editor or Administrator
 // Reads options to retrieve maintenance message and custom image (if selected)
+// Returns HTTP Status Code 503 - Service Unavailable
 
 add_action('after_setup_theme', 'u3a_wp_maintenance_mode');
 
@@ -66,7 +67,7 @@ function u3a_wp_maintenance_mode()
         <p style="padding: 0 10px; color: white; font-size: 1.9rem; text-shadow: 5px 5px 5px #000"><strong>$maint_msg</strong></p>
         </div>
         END;
-        wp_die($html, 'Temporarily Unavailable'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- source trusted
+        wp_die($html, 'Temporarily Unavailable', array('response' => '503')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- source trusted
     }
 }
 
