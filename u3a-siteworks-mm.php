@@ -2,7 +2,7 @@
 /*
 Plugin Name: u3a SiteWorks Maintenance Mode
 Description: Displays a maintenance page for site visitors when activated.
-Version: 1.0.0
+Version: 1.1.0
 Author: u3a SiteWorks team
 Author URI: https://siteworks.u3a.org.uk/
 Plugin URI: https://siteworks.u3a.org.uk/
