@@ -1,4 +1,5 @@
-<?php
+<?php // phpcs:ignore PSR1.Files.SideEffects.FoundWithSymbols
+
 /*
 Plugin Name: u3a SiteWorks Maintenance Mode
 Description: Displays a maintenance page for site visitors when activated.
@@ -10,40 +11,39 @@ License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
-if (!defined('ABSPATH')) exit;
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 // Use the plugin update service on SiteWorks update server
 
 require 'inc/plugin-update-checker/plugin-update-checker.php';
-
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
-
 $u3aMmUpdateChecker = PucFactory::buildUpdateChecker(
     'https://siteworks.u3a.org.uk/wp-update-server/?action=get_metadata&slug=u3a-siteworks-mm', //Metadata URL
     __FILE__, //Full path to the main plugin file or functions.php.
     'u3a-siteworks-mm'
 );
-
 $default_u3a_mm_msg = 'This website is not currently open for public access';
-
-
 // Show "Maintenance Mode" page unless user is logged in as Author, Editor or Administrator
 // Reads options to retrieve maintenance message and custom image (if selected)
 // Returns HTTP Status Code 503 - Service Unavailable
 
 add_action('after_setup_theme', 'u3a_wp_maintenance_mode');
-
 function u3a_wp_maintenance_mode()
 {
     global $default_u3a_mm_msg;
-
-    // Skip if option not set
-    if (get_option('u3a_maintenance_active', '9') == '9') return;
+// Skip if option not set
+    if (get_option('u3a_maintenance_active', '9') == '9') {
+        return;
+    }
 
     // Skip if we're trying to log in
     $url = $_SERVER['REQUEST_URI'];
     foreach (['wp-admin', 'login'] as $slug) {
-        if (strpos($url, $slug)) return;
+        if (strpos($url, $slug)) {
+            return;
+        }
     }
 
     // Show maintenance page if not logged in as Author, Editor or Administrator
@@ -64,21 +64,24 @@ function u3a_wp_maintenance_mode()
         <div style="position:absolute; top:0px; right:0px; bottom:0px; left:0px;
         background-image: url('$background');   background-size:cover;
         text-align: center;">
-        <p style="padding: 0 10px; color: white; font-size: 1.9rem; text-shadow: 5px 5px 5px #000"><strong>$maint_msg</strong></p>
+        <p style="padding: 0 10px; color: white; font-size: 1.9rem; text-shadow: 5px 5px 5px #000">
+        <strong>$maint_msg</strong></p>
         </div>
         END;
-        wp_die($html, 'Temporarily Unavailable', array('response' => '503')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- source trusted
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- source trusted
+        wp_die($html, 'Temporarily Unavailable', array('response' => '503'));
     }
 }
 
 
 // Add the Settings menu to the dashboard.  Currently added as sub-menu on the regular Tools menu.
-// If menu location changes, alter u3a_mm_settings_link() and u3a_mm_admin_notice() and add_action('admin_enqueue_scripts' to match
+// If menu location changes, alter u3a_mm_settings_link() and
+// u3a_mm_admin_notice() and add_action('admin_enqueue_scripts' to match
 
 add_action('admin_menu', 'u3a_mm_settings_menu');
-
 function u3a_mm_settings_menu()
 {
+
     add_submenu_page(
         'u3a-settings',
         'Maintenance Mode',
@@ -92,9 +95,9 @@ function u3a_mm_settings_menu()
 // Add a link to the settings page to the plugin entry on the plugins page
 
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'u3a_mm_settings_link');
-
 function u3a_mm_settings_link($links)
 {
+
 
     // Add the link to the end of the current array
     $page = admin_url('admin.php?page=u3a-mm-settings');
@@ -108,21 +111,19 @@ function u3a_mm_settings_link($links)
 
 function u3a_mm_settings_cb()
 {
-    global $default_u3a_mm_msg;
 
-    // Set/retrieve form settings
+    global $default_u3a_mm_msg;
+// Set/retrieve form settings
 
     $nonce_code =  wp_nonce_field('u3a_settings', 'u3a_nonce', true, false);
     $submit_button = get_submit_button('Save Settings');
     $u3aMQDetect = "<input type=\"hidden\" name=\"u3aMQDetect\" value=\"test'\">\n";
-
     $maint_msg = get_option('u3a_maintenance_msg', $default_u3a_mm_msg);
     $maint_active = get_option('u3a_maintenance_active', '9');
     $maint_active_chk = ($maint_active == '1') ? ' checked' : '';
     $maint_reminder = get_option('u3a_maintenance_reminder', '1');
     $maint_reminder_chk = ($maint_reminder == '1') ? ' checked' : '';
-
-    // Use the default image unless a custom image has been set and is available
+// Use the default image unless a custom image has been set and is available
     $custom_image = get_option('u3a_maintenance_image', 'default');
     $default_image = plugin_dir_url(__FILE__) . 'images/background.jpg';
     if (is_numeric($custom_image)) {
@@ -136,7 +137,8 @@ function u3a_mm_settings_cb()
 
     // Check if there is a status returned from a save
 
-    $status = isset($_GET['status']) ? $_GET['status'] : "";  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- any value other than 1 is ignored
+    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- any value other than 1 is ignored
+    $status = isset($_GET['status']) ? $_GET['status'] : "";
     $status_text = '';
     if ($status == "1") {
         $status_text = '<div class="notice notice-error is-dismissible inline"><p>Changes Saved</p></div>';
@@ -156,7 +158,9 @@ $nonce_code
 $u3aMQDetect
 
 <h3>Enable Maintenance Mode</h3>
-<p>When ticked, only Administrators, Editors and Authors who are logged in will be able to see the website.<br>Other visitors to the site will just see a maintenance page showing the message given below.</p>
+<p>When ticked, only Administrators, Editors and Authors who are logged in 
+will be able to see the website.<br>Other visitors to the site will just see a 
+maintenance page showing the message given below.</p>
 <label for="maint_active"> Enable Maintenance Mode</label>
 <input type="checkbox" id="maint_active" name="maint_active" value="1" $maint_active_chk>
 <br>
@@ -172,7 +176,8 @@ an Administrator, Editor or Author.</label></p>
 <h3>Maintenance Mode Image</h3>
 
 <p>
-<img id="image_src" src="$background" style="vertical-align: middle; object-fit: cover; height: 150px; width: 150px; border: 2px solid gray; padding: 5px;">
+<img id="image_src" src="$background" style="vertical-align: middle; 
+object-fit: cover; height: 150px; width: 150px; border: 2px solid gray; padding: 5px;">
 <input type="text" value="$custom_image" id="custom_image" name="custom_image" readonly size="5" style="display:none;" >
 <button class="set_custom_images button">Select Image</button>
 <button class="button" onClick="document.getElementById('custom_image').value = 'default'; 
@@ -207,37 +212,40 @@ jQuery(document).ready(function() {
 </script>
 
 END;
- // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
 
 // Enqueues all scripts, styles, settings, and templates necessary to use the WordPress JavaScript media APIs.
 
 add_action('admin_enqueue_scripts', function () {
+
     // Skip if we're not on the plugin settings page
     $screen = get_current_screen();
-    if ('u3a-settings_page_u3a-mm-settings' != $screen->id) return;
+    if ('u3a-settings_page_u3a-mm-settings' != $screen->id) {
+        return;
+    }
     wp_enqueue_media();
 });
-
-
-
 // Add function to process the Maintenance Page Settings form submission
 
 add_action('admin_post_u3a_mm_settings', 'u3a_mm_save_settings');
-
 function u3a_mm_save_settings()
 {
     global $default_u3a_mm_msg;
-
-    // check nonce
-    if (check_admin_referer('u3a_settings', 'u3a_nonce') == false) wp_die('Invalid form submission');
+// check nonce
+    if (check_admin_referer('u3a_settings', 'u3a_nonce') == false) {
+        wp_die('Invalid form submission');
+    }
     // verify admin user
-    if (!current_user_can('manage_options')) wp_die('Invalid form submission');
+    if (!current_user_can('manage_options')) {
+        wp_die('Invalid form submission');
+    }
 
     // check for WP magic quotes
     $u3aMQDetect = $_POST['u3aMQDetect'];
-    $needStripSlashes = (strlen($u3aMQDetect) > 5) ? true : false; // backslash added to apostrophe in test string?
+    $needStripSlashes = (strlen($u3aMQDetect) > 5) ? true : false;
+// backslash added to apostrophe in test string?
 
     $maint_msg = $needStripSlashes ? stripslashes($_POST['maint_msg']) : $_POST['maint_msg'];
     $maint_msg = sanitize_text_field($maint_msg);
@@ -251,13 +259,12 @@ function u3a_mm_save_settings()
     update_option('u3a_maintenance_active', $maint_active);
     $maint_reminder = isset($_POST['maint_reminder']) ? '1' : '9';
     update_option('u3a_maintenance_reminder', $maint_reminder);
-
     $custom_image =  isset($_POST['custom_image']) ? trim($_POST['custom_image']) : 'default';
-    if ($custom_image != 'default') $custom_image = absint($custom_image);
+    if ($custom_image != 'default') {
+        $custom_image = absint($custom_image);
+    }
     update_option('u3a_maintenance_image', $custom_image);
-
-
-    // redirect back to u3a mm settings page with status set to success (1)
+// redirect back to u3a mm settings page with status set to success (1)
     wp_safe_redirect(admin_url('admin.php?page=u3a-mm-settings&status=1'));
     exit;
 }
@@ -267,19 +274,23 @@ function u3a_mm_save_settings()
 // unless the setting to suppress the reminder is selected
 
 add_action('admin_notices', 'u3a_mm_admin_notice');
-
 function u3a_mm_admin_notice()
 {
     // Skip if option not set or we don't want reminders
-    if (get_option('u3a_maintenance_active', '9') == '9') return;
-    if (get_option('u3a_maintenance_reminder', '9') == '9') return;
+    if (get_option('u3a_maintenance_active', '9') == '9') {
+        return;
+    }
+    if (get_option('u3a_maintenance_reminder', '9') == '9') {
+        return;
+    }
 
     // SKip if we're already on the settings page
     $screen = get_current_screen();
-    if ('u3a-settings_page_u3a-mm-settings' == $screen->id) return;
+    if ('u3a-settings_page_u3a-mm-settings' == $screen->id) {
+        return;
+    }
 
     $url = admin_url('admin.php?page=u3a-mm-settings');
-
     print <<< END
     <div class="notice notice-warning is-dismissible">
         <p>Maintenance Mode is active. <a href="$url">Settings</a></p>

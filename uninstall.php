@@ -2,7 +2,9 @@
 
 // exit if uninstall constant is not defined
 
-if (!defined('WP_UNINSTALL_PLUGIN')) exit;
+if (!defined('WP_UNINSTALL_PLUGIN')) {
+    exit;
+}
 
 // Remove the option fields used by the maintenance mode plugin
 
